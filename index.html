@@ -4,577 +4,685 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Admin — Cut Archive Gallery (Per-image Metadata + Delete)</title>
+    <title>Cut Archive — Nature Photography</title>
+    <meta name="description"
+        content="Explore the serene nature photography of Cut Archive — landscapes, wildlife & more." />
+    <link rel="icon" type="image/png" href="../gallery/favicon.png" />
+
+    <!-- Canonical & Social -->
+    <link rel="canonical" href="https://www.cutarchive.uk/">
+    <meta property="og:title" content="Cut Archive — Nature Photography" />
+    <meta property="og:description" content="Explore serene landscape and nature photography by Cut Archive." />
+    <!-- IMPORTANT: replace with an absolute URL to your featured image -->
+    <meta property="og:image" content="https://www.cutarchive.uk/images/featured.webp" />
+    <meta property="og:url" content="https://www.cutarchive.uk/" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <style>
         :root {
-            --bg: #0b1020;
+            --bg: #070b15;
+            --bg2: #0b1224;
             --card: #0f1720;
-            --accent: #f59e0b;
             --muted: #a7b0b8;
+            --accent: #f59e0b;
+            --accent-2: #ffd08a;
+            --white: #ffffff;
             --ring: rgba(255, 255, 255, .16);
             --glass: rgba(255, 255, 255, .06);
-            --ok: #22c55e;
-            --warn: #eab308;
-            --err: #ef4444;
-            --info: #38bdf8;
+            --max-width: 1100px;
+            --radius: 14px;
+            --shadow: 0 12px 28px rgba(0, 0, 0, .35);
+            --shadow-soft: 0 6px 18px rgba(0, 0, 0, .25);
+            --header-h: 72px;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
         }
 
         * {
             box-sizing: border-box
         }
 
+        html,
+        body {
+            height: 100%
+        }
+
         body {
             margin: 0;
-            background: linear-gradient(180deg, #0a0f1e, #0e1530);
-            color: #fff;
-            font-family: Inter, system-ui, Arial
+            color: var(--white);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100%;
+            background: radial-gradient(1200px 800px at 10% -10%, #102344 0%, transparent 60%),
+                radial-gradient(900px 600px at 110% 10%, #1a2b49 0%, transparent 55%),
+                linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+            overflow-x: hidden;
         }
 
-        .wrap {
-            max-width: 1000px;
-            margin: 24px auto;
-            padding: 16px
+        /* Soft animated background sheen */
+        .bg-sheen {
+            position: fixed;
+            inset: -20%;
+            pointer-events: none;
+            background:
+                radial-gradient(closest-side, rgba(135, 130, 231, 0.06), transparent 70%),
+                radial-gradient(closest-side, rgba(94, 175, 230, 0.05), transparent 70%);
+            filter: blur(70px);
+            animation: floaty 20s ease-in-out infinite alternate;
+            opacity: .55;
+            z-index: 0;
         }
 
-        h1 {
-            font-size: 20px;
-            margin: 0 0 16px
+        @keyframes floaty {
+            from {
+                transform: translate3d(-2%, -1%, 0) scale(1.0);
+            }
+
+            to {
+                transform: translate3d(2%, 1%, 0) scale(1.02);
+            }
         }
 
-        h2 {
-            font-size: 18px;
-            margin: 0 0 12px
+        @media (prefers-reduced-motion: reduce) {
+            .bg-sheen {
+                animation: none
+            }
+
+            html:focus-within {
+                scroll-behavior: auto;
+            }
         }
 
-        .card {
-            background: var(--card);
-            border: 1px solid var(--ring);
-            border-radius: 14px;
-            padding: 16px;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
-            margin-bottom: 16px
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 28px;
+            position: relative;
+            z-index: 1;
         }
 
-        label {
-            font-size: 13px;
-            color: #dfe6ef;
-            display: block;
-            margin-bottom: 4px
+        /* ===== Header (glassy sticky) ===== */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background: rgba(11, 18, 36, .35);
+            border-bottom: 1px solid var(--ring);
         }
 
-        input,
-        textarea {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 8px;
-            border: 1px solid var(--ring);
-            background: #0b1222;
-            color: #fff;
-            font-size: 13px
-        }
-
-        textarea {
-            min-height: 60px;
-            resize: vertical
-        }
-
-        .drop {
-            border: 1px dashed var(--ring);
-            border-radius: 12px;
-            padding: 14px;
-            text-align: center;
-            background: #0b1222;
-            color: #cbd5e1
-        }
-
-        .drop.drag {
-            border-color: #3b82f6;
-            background: #0b1630
-        }
-
-        .actions {
+        .nav {
+            height: var(--header-h);
             display: flex;
-            gap: 10px;
             align-items: center;
-            margin-top: 16px;
-            flex-wrap: wrap
+            justify-content: space-between;
+            gap: 16px;
         }
 
-        .btn {
-            background: var(--glass);
-            border: 1px solid var(--ring);
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            backdrop-filter: blur(8px) saturate(120%);
-            display: inline-flex;
-            gap: 6px;
+        .brand {
+            display: flex;
             align-items: center;
-            font-size: 13px
-        }
-
-        .btn.primary {
-            background: linear-gradient(135deg, #1f2937, #334155);
-            border-color: #3b82f6
-        }
-
-        .btn.danger {
-            border-color: var(--err)
-        }
-
-        .btn.info {
-            border-color: var(--info)
-        }
-
-        .btn:disabled {
-            opacity: .6;
-            cursor: not-allowed
-        }
-
-        .stat {
-            font-size: 13px;
-            color: #cbd5e1
-        }
-
-        .hr {
-            height: 1px;
-            background: var(--ring);
-            margin: 16px 0
-        }
-
-        .hidden {
-            display: none !important
-        }
-
-        /* Upload list */
-        .preview {
-            margin-top: 16px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px
-        }
-
-        .item {
-            background: #0b1222;
-            border: 1px solid var(--ring);
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column
-        }
-
-        .thumb {
-            display: flex;
-            gap: 12px;
-            padding: 12px
-        }
-
-        .thumb img {
-            width: 120px;
-            height: 90px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: #000
-        }
-
-        .fields {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 100px;
-            gap: 8px
-        }
-
-        .fields textarea {
-            grid-column: 1/3
-        }
-
-        .prog {
-            height: 4px;
-            background: #111;
-            margin: 0 12px 12px;
-            border-radius: 4px;
-            overflow: hidden
-        }
-
-        .bar {
-            height: 100%;
-            width: 0;
-            background: linear-gradient(90deg, #3b82f6, #22c55e)
-        }
-
-        .badge {
-            font-size: 11px;
-            margin-left: auto;
-            margin-right: 12px;
-            color: #ccc
-        }
-
-        .ok {
-            color: var(--ok)
-        }
-
-        .err {
-            color: var(--err)
-        }
-
-        /* Manage list */
-        .manage {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 12px
         }
 
-        .card-mini {
-            background: #0b1222;
-            border: 1px solid var(--ring);
-            border-radius: 12px;
-            padding: 10px;
+        .logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #111827, #0ea5a9);
             display: flex;
-            flex-direction: column;
-            gap: 8px
-        }
-
-        .card-mini img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: #000
-        }
-
-        .meta {
-            font-size: 12px;
-            color: #cbd5e1
-        }
-
-        .meta b {
-            font-size: 13px;
-            color: #fff;
-            display: block;
-            margin-bottom: 2px
-        }
-
-        .row {
-            display: flex;
-            gap: 8px;
             align-items: center;
-            justify-content: space-between
+            justify-content: center;
+            font-weight: 700;
+            user-select: none;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
         }
 
-        .search {
+        .brand h1 {
+            font-size: 18px;
+            margin: 0
+        }
+
+        .brand p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        nav {
             display: flex;
-            gap: 8px;
-            align-items: center
+            gap: 16px;
+            align-items: center;
         }
 
-        .search input {
-            max-width: 260px
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 10px;
+            border-radius: 10px;
+        }
+
+        nav a:hover,
+        nav a:focus {
+            color: #050505;
+            background: var(--accent);
+            outline: none;
+        }
+
+        /* Menu (mobile) */
+        .menu-btn {
+            display: none;
+            font-size: 28px;
+            cursor: pointer;
+            user-select: none;
+            color: var(--white);
+            background: transparent;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+
+        .menu-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: calc(var(--header-h) - 10px);
+                right: 24px;
+                background: rgba(15, 23, 32, .9);
+                border: 1px solid var(--ring);
+                padding: 12px;
+                border-radius: 14px;
+                gap: 6px;
+                box-shadow: var(--shadow-soft);
+                backdrop-filter: blur(10px);
+            }
+
+            nav.show {
+                display: flex;
+            }
+
+            .menu-btn {
+                display: block;
+            }
+        }
+
+        /* On scroll stronger header */
+        .scrolled .site-header {
+            background: rgba(9, 15, 28, .9);
+        }
+
+        /* ===== Hero ===== */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            align-items: center;
+            margin: 26px 0 48px;
+        }
+
+        .hero-card {
+            padding: 28px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+            border: 1px solid var(--ring);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .eyebrow .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--accent);
+            box-shadow: 0 0 16px var(--accent);
+        }
+
+        .headline {
+            font-size: 36px;
+            line-height: 1.15;
+            margin: 0 0 10px;
+            letter-spacing: -.01em;
+        }
+
+        .headline .accent {
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 6px 28px rgba(245, 158, 11, .15);
+        }
+
+        .sub {
+            color: var(--muted);
+            margin: 0 0 18px;
+            font-size: 15px;
+        }
+
+        .cta-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid var(--ring);
+            transition: transform .15s ease, background .2s ease, box-shadow .15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:active {
+            transform: translateY(1px) scale(.99);
+        }
+
+        .btn-primary {
+            color: #0b0b0b;
+            background: linear-gradient(180deg, #ffc563, #f59e0b);
+            box-shadow: 0 10px 26px rgba(245, 158, 11, .25), inset 0 1px 0 rgba(255, 255, 255, .35);
+            border-color: rgba(0, 0, 0, .2);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background: linear-gradient(180deg, #ffd283, #f3a312);
+            outline: none;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, .06);
+            color: #fff;
+            border-color: var(--ring);
+            backdrop-filter: blur(8px) saturate(120%);
+        }
+
+        .btn-ghost:hover,
+        .btn-ghost:focus {
+            background: rgba(255, 255, 255, .12);
+            outline: none;
+        }
+
+        .hero-media {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            height: 420px;
+            border: 1px solid var(--ring);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+            box-shadow: var(--shadow);
+            transform-style: preserve-3d;
+        }
+
+        .hero-media::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05), inset 0 -60px 120px rgba(0, 0, 0, .35);
+        }
+
+        .hero-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Gentle tilt on hover (desktop) */
+        @media (hover:hover) and (pointer:fine) {
+            .hero-media:hover {
+                transform: perspective(1200px) rotateX(2deg) rotateY(-2deg);
+                transition: transform .4s ease;
+            }
+        }
+
+        /* ===== About (clean, centered) ===== */
+        .about {
+            margin: 10px 0 60px;
+        }
+
+        .about-card {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid var(--ring);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            max-width: 780px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-card p {
+            font-size: 15px;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .about-card a {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .about-card a:hover,
+        .about-card a:focus {
+            color: var(--accent);
+            outline: none;
+        }
+
+        /* ===== Footer ===== */
+        footer {
+            background: rgba(10, 10, 12, .6);
+            border-top: 1px solid var(--ring);
+            color: var(--muted);
+            font-size: 13px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            backdrop-filter: blur(8px);
+        }
+
+        .social {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--ring);
+            color: #fff;
+            text-decoration: none;
+            background: rgba(255, 255, 255, .06);
+        }
+
+        .social a:hover,
+        .social a:focus {
+            background: rgba(255, 255, 255, .12);
+            outline: none;
+        }
+
+        /* ===== Scroll to top (glass) ===== */
+        #scrollTopBtn {
+            position: fixed;
+            bottom: 26px;
+            right: 26px;
+            z-index: 60;
+            display: none;
+            background: rgba(255, 255, 255, .12);
+            color: #fff;
+            border: 1px solid var(--ring);
+            border-radius: 999px;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(8px) saturate(120%);
+            transition: opacity .2s ease, transform .2s ease, background .2s ease;
+        }
+
+        #scrollTopBtn:hover,
+        #scrollTopBtn:focus {
+            background: rgba(255, 255, 255, .2);
+            outline: none;
+        }
+
+        #scrollTopBtn.show {
+            display: block;
+            opacity: 1;
+        }
+
+        #scrollTopBtn.hide {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        /* ===== Scroll reveal ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .reveal.in {
+            opacity: 1;
+            transform: none;
+            transition: opacity .6s ease, transform .6s ease;
+        }
+
+        /* Accessibility */
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
         }
     </style>
 </head>
 
 <body>
-    <div class="wrap">
-        <h1>Admin — Upload to Gallery (Login + Multi + Per-image + Delete)</h1>
+    <div class="bg-sheen" aria-hidden="true"></div>
 
-        <!-- Login Card -->
-        <div id="loginCard" class="card">
-            <h2>Sign in</h2>
-            <label>Email <input id="email" type="email" autocomplete="username"></label>
-            <label>Password <input id="password" type="password" autocomplete="current-password"></label>
-            <div class="actions">
-                <button id="loginBtn" class="btn primary">Sign in</button>
-                <span id="loginMsg" class="stat"></span>
-            </div>
-        </div>
-
-        <!-- Upload Card -->
-        <div id="uploadCard" class="card hidden">
-            <div class="actions" style="margin-bottom:10px">
-                <span class="stat">Signed in as <strong id="whoami">—</strong></span>
-                <button id="logoutBtn" class="btn danger">Sign out</button>
-            </div>
-
-            <h2>Upload photos</h2>
-            <label>Select images (drag & drop or pick multiple)</label>
-            <div id="drop" class="drop">
-                <input id="file" type="file" accept="image/*" multiple>
-                <div class="stat" id="stat">No files selected.</div>
-            </div>
-            <div class="preview" id="preview"></div>
-
-            <div class="hr"></div>
-            <div class="actions">
-                <label>Max dimension (px) <input id="maxDim" type="text" value="2560"></label>
-                <label>Thumb dimension (px) <input id="thumbDim" type="text" value="1200"></label>
-                <label>Quality (0–1) <input id="quality" type="text" value="0.82"></label>
-                <span class="stat">Tip: 0.82 is a sweet spot for WebP.</span>
-            </div>
-
-            <div class="actions">
-                <button id="uploadBtn" class="btn primary">Upload ALL</button>
-                <span id="progress" class="stat"></span>
-            </div>
-        </div>
-
-        <!-- Manage Card: list & delete -->
-        <div id="manageCard" class="card hidden">
-            <div class="row">
-                <h2>Your uploads</h2>
-                <div class="search">
-                    <input id="search" type="text" placeholder="Search title/year…">
-                    <button id="refreshBtn" class="btn info">Refresh</button>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container nav">
+            <div class="brand">
+                <div class="logo" aria-label="Cut Archive Logo">CA</div>
+                <div>
+                    <h1 style="margin:0">Cut Archive</h1>
+                    <p>Nature & Landscape Photographer</p>
                 </div>
             </div>
-            <div id="manageList" class="manage"></div>
-            <div id="manageMsg" class="stat"></div>
+
+            <button class="menu-btn" id="menuBtn" aria-label="Toggle navigation menu" aria-expanded="false"
+                aria-controls="nav-links">☰</button>
+
+            <nav id="nav-links" role="navigation">
+                <a href="../gallery/" aria-label="Go to Gallery page">Gallery</a>
+                <a href="https://www.instagram.com/cut.archive" aria-label="Cut Archive Instagram Profile"
+                    target="_blank" rel="noopener noreferrer">Instagram</a>
+            </nav>
         </div>
-    </div>
+    </header>
 
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
+    <main>
+        <div class="container">
+            <!-- Hero -->
+            <section class="hero reveal" id="hero">
+                <div class="hero-card">
+                    <div class="eyebrow"><span class="dot"></span> Nature Photographer</div>
+                    <p class="headline">Capturing the <span class="accent">quiet moments</span> in nature.</p>
+                    <p class="sub">I’m Cut Archive — I specialize in landscape and nature photography. Browse the
+                        gallery and
+                        follow me
+                        on Instagram for my latest work.</p>
 
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyBh8WAvIvqqXRpPIlJVkaQ4zWSi4TqfOUk",
-            authDomain: "cut-archive.firebaseapp.com",
-            projectId: "cut-archive",
-            storageBucket: "cut-archive.firebasestorage.app",
-            messagingSenderId: "470375936361",
-            appId: "1:470375936361:web:8a83c293c26cf5790d0df8",
-            measurementId: "G-5WRR0YVB2G"
-        };
+                    <div class="cta-row">
+                        <a class="btn btn-primary" href="../gallery/" aria-label="View Gallery">
+                            <!-- camera icon -->
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path
+                                    d="M4 8h3l2-3h6l2 3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"
+                                    stroke="currentColor" stroke-width="2" />
+                                <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            View Gallery
+                        </a>
+                        <a class="btn btn-ghost" href="https://www.instagram.com/cut.archive" target="_blank"
+                            rel="noopener noreferrer" aria-label="Open Instagram">
+                            <!-- ig icon -->
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor"
+                                    stroke-width="2" />
+                                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" />
+                                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+                            </svg>
+                            Instagram
+                        </a>
+                        <!-- Removed: Prints · Commissions · Travel assignments -->
+                    </div>
+                </div>
 
+                <figure class="hero-media" aria-label="Featured photo">
+                    <picture>
+                        <source srcset="../gallery/background.jpg" type="image/jpg">
+                        <img src="../gallery/background.jpg alt=" Misty mountains during golden hour" width="1200"
+                            height="800" loading="eager" decoding="async">
+                    </picture>
+                </figure>
+            </section>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const st = getStorage(app);
+            <!-- About (clean, centered) -->
+            <section class="about reveal" id="about">
+                <h2 style="margin:0 0 12px; text-align:center">About</h2>
+                <div class="about-card">
+                    <p>
+                        I’m a nature photographer based in India. I hunt light, patience, and moments that tell a story.
+                        This site is my personal showcase — no services. <br>
+                        Contact: <a href="mailto:cutarchive05@gmail.com"
+                            aria-label="Email Cut Archive">cutarchive05@gmail.com</a>
+                    </p>
+                </div>
+            </section>
+        </div>
+    </main>
 
-        /* ===== DOM ===== */
-        const $ = id => document.getElementById(id);
-        const loginCard = $('loginCard'), uploadCard = $('uploadCard'), manageCard = $('manageCard');
-        const loginBtn = $('loginBtn'), logoutBtn = $('logoutBtn'), loginMsg = $('loginMsg'), whoami = $('whoami');
+    <!-- Footer -->
+    <footer>
+        <div class="footer-inner">
+            <div>© <span id="year"></span> Cut Archive</div>
+            <div class="social">
+                <a href="../gallery/" aria-label="Open Gallery">
+                    <!-- camera -->
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M4 8h3l2-3h6l2 3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"
+                            stroke="currentColor" stroke-width="2" />
+                        <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </a>
+                <a href="https://www.instagram.com/cut.archive" target="_blank" rel="noopener noreferrer"
+                    aria-label="Instagram">
+                    <!-- ig -->
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="2" />
+                        <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" />
+                        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+                    </svg>
+                </a>
+                <a href="mailto:cutarchive05@gmail.com" aria-label="Email">
+                    <!-- mail -->
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
+                            stroke="currentColor" stroke-width="2" />
+                        <path d="m22 8-10 7L2 8" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
 
-        const fileInput = $('file'), drop = $('drop'), stat = $('stat'), preview = $('preview'), progress = $('progress');
-        const uploadBtn = $('uploadBtn'), maxDim = $('maxDim'), thumbDim = $('thumbDim'), quality = $('quality');
+    <!-- Scroll to top -->
+    <button id="scrollTopBtn" aria-label="Scroll to top">↑</button>
 
-        const manageList = $('manageList'), manageMsg = $('manageMsg'), refreshBtn = $('refreshBtn'), search = $('search');
+    <script>
+        // Year
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-        /* ===== Auth gating ===== */
-        function setAuthedUI(user) {
-            const authed = !!user;
-            loginCard.classList.toggle('hidden', authed);
-            uploadCard.classList.toggle('hidden', !authed);
-            manageCard.classList.toggle('hidden', !authed);
-            whoami.textContent = authed ? (user.email || user.uid) : '—';
-            if (authed) refreshList();
-        }
-        setPersistence(auth, browserLocalPersistence).catch(() => { });
-        onAuthStateChanged(auth, u => setAuthedUI(u));
+        // Sticky header strengthening on scroll + show scrollTop
+        const bodyEl = document.body;
+        const topBtn = document.getElementById('scrollTopBtn');
+        let btnVisible = false;
 
-        loginBtn.onclick = async () => {
-            loginMsg.textContent = 'Signing in…';
-            const email = $('email').value.trim();
-            const pass = $('password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                loginMsg.textContent = 'Signed in ✅';
-            } catch (e) {
-                loginMsg.textContent = 'Error: ' + (e.code || e.message);
-            }
-        };
-        logoutBtn.onclick = () => signOut(auth);
+        function onScroll() {
+            const y = window.scrollY || document.documentElement.scrollTop;
+            bodyEl.classList.toggle('scrolled', y > 6);
 
-        /* ===== File selection (multiple) + drag & drop with per-image fields ===== */
-        let files = [];
-        function renderList() {
-            preview.innerHTML = '';
-            if (!files.length) { stat.textContent = 'No files selected.'; return; }
-            stat.textContent = `${files.length} file(s) ready.`;
-            files.forEach((f, idx) => {
-                const item = document.createElement('div'); item.className = 'item'; item.dataset.index = idx;
-                const thumb = document.createElement('div'); thumb.className = 'thumb';
-                const img = document.createElement('img'); img.src = URL.createObjectURL(f); img.onload = () => URL.revokeObjectURL(img.src);
-                thumb.appendChild(img);
-                const badge = document.createElement('div'); badge.className = 'badge'; badge.textContent = 'queued';
-                thumb.appendChild(badge);
-
-                const fields = document.createElement('div'); fields.className = 'fields';
-                const t = document.createElement('input'); t.placeholder = 'Title'; t.value = f.name.replace(/\.[^.]+$/, '');
-                const y = document.createElement('input'); y.placeholder = 'Year';
-                const d = document.createElement('textarea'); d.placeholder = 'Description';
-                fields.appendChild(t); fields.appendChild(y); fields.appendChild(d);
-
-                const prog = document.createElement('div'); prog.className = 'prog';
-                const bar = document.createElement('div'); bar.className = 'bar'; prog.appendChild(bar);
-
-                item.appendChild(thumb); item.appendChild(fields); item.appendChild(prog);
-                f._title = t; f._year = y; f._desc = d; f._badge = badge; f._bar = bar;
-                preview.appendChild(item);
-            });
-        }
-        fileInput.onchange = () => { files = Array.from(fileInput.files || []); renderList(); };
-        ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('drag'); }));
-        ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('drag'); }));
-        drop.addEventListener('drop', e => { const d = Array.from(e.dataTransfer.files || []).filter(f => /^image\//.test(f.type)); files = files.concat(d); renderList(); });
-
-        /* ===== Compression helpers ===== */
-        const slug = s => (s || 'photo').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        async function blobFromCanvas(c, m = 'image/webp', q = 0.82) { return new Promise(res => c.toBlob(b => res(b), m, q)); }
-        function targetSize(w, h, max) { if (w <= max && h <= max) return { w, h }; const r = w / h; return (w > h) ? { w: max, h: Math.round(max / r) } : { w: Math.round(max * r), h: max }; }
-        async function drawToCanvas(img, max) { const { width: W, height: H } = img; const { w, h } = targetSize(W, H, max); const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); return c; }
-        async function loadImageBitmap(file) { if ('createImageBitmap' in window) { try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch { } } const url = URL.createObjectURL(file); const i = new Image(); await new Promise((res, rej) => { i.onload = res; i.onerror = rej; i.src = url; }); const c = document.createElement('canvas'); c.width = i.naturalWidth; c.height = i.naturalHeight; c.getContext('2d').drawImage(i, 0, 0); URL.revokeObjectURL(url); return await createImageBitmap(c); }
-        async function compress(f, { max = 2560, q = 0.82 } = {}) { const b = await loadImageBitmap(f); const c = await drawToCanvas(b, max); const out = await blobFromCanvas(c, 'image/webp', q); return { blob: out, width: c.width, height: c.height }; }
-        async function makeThumb(f, { max = 1200, q = 0.82 } = {}) { const b = await loadImageBitmap(f); const c = await drawToCanvas(b, max); const out = await blobFromCanvas(c, 'image/webp', q); return { blob: out }; }
-
-        /* Upload with cache headers */
-        async function uploadBlob(path, blob) {
-            const r = ref(st, path);
-            await uploadBytes(r, blob, {
-                contentType: blob.type || 'image/webp',
-                cacheControl: "public, max-age=31536000, immutable"
-            });
-            return await getDownloadURL(r);
-        }
-
-        /* ===== Upload queue ===== */
-        uploadBtn.onclick = async () => {
-            if (!auth.currentUser) { alert('Please sign in first'); return; }
-            if (!files.length) { alert('No files selected'); return; }
-            uploadBtn.disabled = true;
-            const Q = parseFloat(quality.value) || 0.82, MAX = parseInt(maxDim.value) || 2560, TH = parseInt(thumbDim.value) || 1200;
-            let done = 0;
-            for (const [idx, f] of files.entries()) {
-                try {
-                    f._badge.textContent = 'compressing';
-                    const { blob: main, width, height } = await compress(f, { max: MAX, q: Q });
-                    // two thumbs: ~400 and ~800 (use your thumbDim as upper bound for the 800 one)
-                    const { blob: thumb400 } = await makeThumb(f, { max: 400, q: Math.min(Q, 0.8) });
-                    const { blob: thumb800 } = await makeThumb(f, { max: Math.max(TH, 800), q: Math.min(Q, 0.8) });
-
-                    f._badge.textContent = 'uploading'; f._bar.style.width = '35%';
-                    const base = `${Date.now()}-${slug(f._title.value || f.name)}-${idx + 1}`;
-
-                    const mainURL = await uploadBlob(`gallery/${base}.webp`, main);
-                    f._bar.style.width = '55%';
-                    const t400URL = await uploadBlob(`gallery/thumbs/${base}-400.webp`, thumb400);
-                    f._bar.style.width = '75%';
-                    const t800URL = await uploadBlob(`gallery/thumbs/${base}-800.webp`, thumb800);
-                    f._bar.style.width = '90%';
-
-                    await addDoc(collection(db, 'gallery'), {
-                        title: f._title.value, year: f._year.value, description: f._desc.value,
-                        src: mainURL,
-                        thumb: t800URL,           // backward compatible
-                        thumb400: t400URL,        // new
-                        thumb800: t800URL,        // new
-                        width, height,
-                        aspect: +(width / height).toFixed(4),
-                        uploadedAt: serverTimestamp(),
-                        uid: auth.currentUser.uid
-                    });
-
-                    f._bar.style.width = '100%'; f._badge.innerHTML = '<span class="ok">done</span>';
-                } catch (e) { console.error(e); f._badge.innerHTML = '<span class="err">failed</span>'; }
-                done++; progress.textContent = `${done}/${files.length} processed`;
-            }
-            uploadBtn.disabled = false;
-            // Refresh manage list after batch finishes
-            refreshList();
-        };
-
-        /* ===== Manage list (read + delete) ===== */
-        let allDocs = []; // cached for search/filter
-
-        async function refreshList() {
-            if (!auth.currentUser) return;
-            manageMsg.textContent = 'Loading…';
-            manageList.innerHTML = '';
-            try {
-                const snap = await getDocs(collection(db, 'gallery'));
-                allDocs = [];
-                snap.forEach(d => allDocs.push({ id: d.id, ...d.data() }));
-                allDocs.sort((a, b) => (b.uploadedAt?.seconds || 0) - (a.uploadedAt?.seconds || 0));
-                renderManage(allDocs);
-                manageMsg.textContent = allDocs.length ? '' : 'No uploads yet.';
-            } catch (e) {
-                console.error(e);
-                manageMsg.textContent = 'Failed to load list.';
+            const shouldShow = y > 300;
+            if (shouldShow && !btnVisible) {
+                topBtn.classList.remove('hide');
+                topBtn.classList.add('show');
+                btnVisible = true;
+            } else if (!shouldShow && btnVisible) {
+                topBtn.classList.add('hide');
+                setTimeout(() => topBtn.classList.remove('show', 'hide'), 180);
+                btnVisible = false;
             }
         }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
 
-        function renderManage(list) {
-            manageList.innerHTML = '';
-            const q = (search.value || '').toLowerCase().trim();
-            const filtered = q ? list.filter(x =>
-                (x.title || '').toLowerCase().includes(q) ||
-                String(x.year || '').toLowerCase().includes(q) ||
-                (x.description || '').toLowerCase().includes(q)
-            ) : list;
+        topBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
-            filtered.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card-mini';
-                const img = document.createElement('img');
-                img.src = item.thumb || item.src;
-                img.alt = item.title || '';
-                const meta = document.createElement('div');
-                meta.className = 'meta';
-                meta.innerHTML = `
-      <b>${item.title || 'Untitled'}</b>
-      <div>${item.year ? `Year: ${item.year}` : ''}</div>
-      <div style="margin-top:4px;opacity:.9">${item.description || ''}</div>
-    `;
-                const row = document.createElement('div');
-                row.className = 'row';
-                const small = document.createElement('span');
-                small.className = 'stat';
-                small.textContent = item.uploadedAt ? new Date(item.uploadedAt.seconds * 1000).toLocaleString() : '';
-                const del = document.createElement('button');
-                del.className = 'btn danger'; del.textContent = 'Delete';
-                del.onclick = () => handleDelete(item, del, card);
-                row.appendChild(small); row.appendChild(del);
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const nav = document.getElementById('nav-links');
+        menuBtn.addEventListener('click', () => {
+            const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+            menuBtn.setAttribute('aria-expanded', String(!expanded));
+            nav.classList.toggle('show');
+        });
 
-                card.appendChild(img); card.appendChild(meta); card.appendChild(row);
-                manageList.appendChild(card);
-            });
-        }
-
-        async function handleDelete(item, btn, card) {
-            if (!auth.currentUser) { alert('Please sign in first'); return; }
-            const ok = confirm(`Delete "${item.title || 'this photo'}"? This will remove the file(s) and database entry.`);
-            if (!ok) return;
-
-            btn.disabled = true; btn.textContent = 'Deleting…';
-            try {
-                // Delete Storage variants — ignore if missing
-                if (item.src) { try { await deleteObject(ref(st, item.src)); } catch (e) { /* ignore */ } }
-                if (item.thumb) { try { await deleteObject(ref(st, item.thumb)); } catch (e) { /* ignore */ } }
-                if (item.thumb400) { try { await deleteObject(ref(st, item.thumb400)); } catch (e) { /* ignore */ } }
-                if (item.thumb800) { try { await deleteObject(ref(st, item.thumb800)); } catch (e) { /* ignore */ } }
-
-                await deleteDoc(doc(db, 'gallery', item.id));
-
-                card.remove();
-                allDocs = allDocs.filter(d => d.id !== item.id);
-                manageMsg.textContent = '';
-            } catch (e) {
-                console.error(e);
-                alert('Failed to delete: ' + e.message);
-                btn.disabled = false; btn.textContent = 'Delete';
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!nav.classList.contains('show')) return;
+            if (!e.target.closest('#nav-links') && !e.target.closest('#menuBtn')) {
+                nav.classList.remove('show');
+                menuBtn.setAttribute('aria-expanded', 'false');
             }
-        }
+        });
 
-        refreshBtn.onclick = refreshList;
-        search.oninput = () => renderManage(allDocs);
+        // Scroll reveal (respects reduced motion)
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!prefersReduced && 'IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: '0px 0px -10% 0px', threshold: 0.15 });
+            document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+        } else {
+            document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+        }
     </script>
 </body>
 
