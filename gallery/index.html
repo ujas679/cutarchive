@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Gallery — Cut Archive</title>
+    <link rel="icon" href="./gallery/favicon.png" />
+    <meta name="description" content="Browse the premium nature & landscape photography of Cut Archive." />
+    <style>
+        :root {
+            --bg: #070b15;
+            --bg2: #0b1224;
+            --card: #0f1720;
+            --muted: #a7b0b8;
+            --accent: #f59e0b;
+            --white: #ffffff;
+            --ring: rgba(255, 255, 255, .16);
+            --glass: rgba(255, 255, 255, .06);
+            --max-width: 1100px;
+            --radius: 14px;
+            --shadow: 0 12px 28px rgba(0, 0, 0, .35);
+            --shadow-soft: 0 6px 18px rgba(0, 0, 0, .25);
+            --header-h: 72px;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            color: var(--white);
+            background: radial-gradient(1200px 800px at 10% -10%, #102344 0%, transparent 60%),
+                radial-gradient(900px 600px at 110% 10%, #1a2b49 0%, transparent 55%),
+                linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background: rgba(11, 18, 36, .35);
+            border-bottom: 1px solid var(--ring);
+        }
+
+        .nav {
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #111827, #0ea5a9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            user-select: none;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05);
+        }
+
+        .brand h1 {
+            font-size: 18px;
+            margin: 0
+        }
+
+        .brand p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        nav {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 10px;
+            border-radius: 10px;
+        }
+
+        nav a:hover {
+            color: #050505;
+            background: var(--accent);
+        }
+
+        h2 {
+            margin: 12px 0 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--ring);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: var(--shadow-soft);
+            transition: transform .15s ease, box-shadow .15s ease;
+            content-visibility: auto;
+            contain-intrinsic-size: 220px 240px;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            background: #000;
+        }
+
+        .meta {
+            padding: 10px;
+        }
+
+        .meta h3 {
+            margin: 0 0 6px;
+            font-size: 16px;
+        }
+
+        .meta p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .meta p.desc {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            white-space: normal;
+            max-height: 3.6em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .lightbox.open {
+            display: flex;
+        }
+
+        .lb-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 95vw;
+            max-height: 90vh;
+            text-align: center;
+            position: relative;
+        }
+
+        .btn-glass {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--glass);
+            color: #fff;
+            border: 1px solid var(--ring);
+            padding: 8px 12px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px) saturate(120%);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .lb-controls {
+            position: absolute;
+            top: -8px;
+            right: 0;
+            display: flex;
+            gap: 8px;
+            transform: translateY(-100%);
+        }
+
+        #lbTitle {
+            margin-bottom: 4px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            max-width: 90vw;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #lbYear {
+            color: #aeb7c0;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .stage {
+            position: relative;
+            border-radius: 12px;
+            max-width: 95vw;
+            max-height: 70vh;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--ring);
+            aspect-ratio: var(--stage-ar, 4 / 3);
+        }
+
+        .stage img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity .2s ease;
+        }
+
+        .loading-skel {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9aa3ad;
+            font-size: 13px;
+            background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .04) 10px, rgba(255, 255, 255, .02) 10px, rgba(255, 255, 255, .02) 20px);
+        }
+
+        .lb-nav {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .lb-nav .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: auto;
+        }
+
+        .lb-nav .prev {
+            left: -8px;
+            transform: translate(-100%, -50%);
+        }
+
+        .lb-nav .next {
+            right: -8px;
+            transform: translate(100%, -50%);
+        }
+
+        #lbCaption {
+            margin-top: 12px;
+            color: #ccc;
+            font-size: 14px;
+            max-width: 90vw;
+            line-height: 1.4;
+        }
+
+        footer {
+            background: rgba(10, 10, 12, .6);
+            border-top: 1px solid var(--ring);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .footer-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container nav">
+            <div class="brand">
+                <div class="logo" aria-label="Cut Archive Logo">CA</div>
+                <div>
+                    <h1 style="margin:0">Cut Archive</h1>
+                    <p>Nature & Landscape</p>
+                </div>
+            </div>
+            <nav>
+                <a href="/">Home</a>
+                <a href="https://www.instagram.com/cut.archive" target="_blank" rel="noopener">Instagram</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h2>Gallery</h2>
+            <div id="grid" class="grid" aria-live="polite"></div>
+        </div>
+
+        <!-- Lightbox -->
+        <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" tabindex="-1" aria-label="Image viewer">
+            <div class="lb-wrap" id="lbWrap">
+                <div class="lb-controls">
+                    <button id="lbClose" class="btn-glass" aria-label="Close">✕</button>
+                </div>
+                <div id="lbTitle"></div>
+                <div id="lbYear"></div>
+                <div class="stage" id="stage">
+                    <div id="skel" class="loading-skel" aria-hidden="true">Loading…</div>
+                    <img id="lbImg" src="" alt="" />
+                    <div class="lb-nav">
+                        <button id="prevBtn" class="btn-glass arrow prev" aria-label="Previous">← Prev</button>
+                        <button id="nextBtn" class="btn-glass arrow next" aria-label="Next">Next →</button>
+                    </div>
+                </div>
+                <div id="lbCaption"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div>© <span id="year"></span> Cut Archive</div>
+            <div class="social"></div>
+        </div>
+    </footer>
+
+    <style>
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #0b0f1a;
+            color: #bbb;
+            font-size: 14px;
+            text-align: center;
+            padding: 0px 0;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+
+    <script>
+        // year auto update
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+
+
+    <script type="module">
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        const grid = document.getElementById('grid');
+        const lb = document.getElementById('lightbox');
+        const lbWrap = document.getElementById('lbWrap');
+        const lbImg = document.getElementById('lbImg');
+        const lbTitle = document.getElementById('lbTitle');
+        const lbYear = document.getElementById('lbYear');
+        const lbCaption = document.getElementById('lbCaption');
+        const lbClose = document.getElementById('lbClose');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const skel = document.getElementById('skel');
+        const stage = document.getElementById('stage');
+
+        let items = [];
+        let current = -1;
+
+        async function loadJSON() {
+            try {
+                const res = await fetch('/gallery/photos.json', { cache: 'no-cache' });
+                items = await res.json();
+                renderGrid();
+            } catch (e) {
+                console.error(e);
+                grid.innerHTML = '<div style="color:#a7b0b8">Gallery not available.</div>';
+            }
+        }
+
+        function renderGrid() {
+            const frag = document.createDocumentFragment();
+            items.forEach((it, i) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                const img = document.createElement('img');
+                img.src = it.thumb || it.src;
+                img.alt = it.title || '';
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                img.addEventListener('click', () => openLB(i), { passive: true });
+
+                const meta = document.createElement('div');
+                meta.className = 'meta';
+                meta.innerHTML = `
+          <h3>${it.title || ''}</h3>
+          <p>${it.year || ''}</p>
+          <p class="desc">${it.description || ''}</p>
+        `;
+                card.appendChild(img);
+                card.appendChild(meta);
+                frag.appendChild(card);
+            });
+            grid.innerHTML = '';
+            grid.appendChild(frag);
+        }
+
+        function setSkel(on = true) { skel.style.display = on ? 'flex' : 'none'; }
+        function openLB(i) {
+            current = i;
+            const it = items[i];
+            // aspect placeholder
+            const ar = it.aspect && isFinite(it.aspect) ? String(it.aspect) : '4 / 3';
+            stage.style.setProperty('--stage-ar', ar);
+
+            lbImg.style.opacity = 0;
+            lbImg.src = it.thumb || it.src;
+            lbImg.alt = it.title || '';
+            lbTitle.textContent = it.title || '';
+            lbYear.textContent = it.year ? String(it.year) : '';
+            lbCaption.textContent = it.description || '';
+            lb.classList.add('open');
+            setSkel(true);
+
+            const hi = new Image();
+            hi.onload = () => { lbImg.src = hi.src; lbImg.style.opacity = 1; setSkel(false); };
+            hi.onerror = () => { lbImg.style.opacity = 1; setSkel(false); };
+            hi.src = it.src;
+        }
+        function closeLB() { lb.classList.remove('open'); current = -1; stage.style.removeProperty('--stage-ar'); }
+        function showAt(i) { if (!items.length) return; openLB((i + items.length) % items.length); }
+        function next() { showAt(current + 1); }
+        function prev() { showAt(current - 1); }
+
+        lbClose.onclick = closeLB;
+        lb.addEventListener('click', e => { if (!lbWrap.contains(e.target)) closeLB(); });
+        nextBtn.onclick = e => { e.stopPropagation(); next(); };
+        prevBtn.onclick = e => { e.stopPropagation(); prev(); };
+        window.addEventListener('keydown', e => {
+            if (!lb.classList.contains('open')) return;
+            if (e.key === 'ArrowRight') next();
+            else if (e.key === 'ArrowLeft') prev();
+            else if (e.key === 'Escape') closeLB();
+        });
+
+        loadJSON();
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('✅ Service Worker registered:', reg))
+                .catch(err => console.error('❌ SW failed:', err));
+        }
+
+    </script>
+</body>
+
+</html>
