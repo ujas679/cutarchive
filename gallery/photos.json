@@ -1,37 +1,37 @@
 [
-  {
-    "title": "Image 1",
-    "year": 2024,
-    "description": "Description for image 1",
-    "src": "./gallery/img1.jpg",
-    "thumb": "./gallery/img1.jpg"
-  },
-  {
-    "title": "Image 2",
-    "year": 2024,
-    "description": "Description for image 2",
-    "src": "./gallery/img2.jpg",
-    "thumb": "./gallery/img2.jpg"
-  },
-  {
-    "title": "Image 3",
-    "year": 2024,
-    "description": "Description for image 3",
-    "src": "./gallery/img3.jpg",
-    "thumb": "./gallery/img3.jpg"
-  },
-  {
-    "title": "Image 4",
-    "year": 2024,
-    "description": "Description for image 4",
-    "src": "./gallery/img4.jpg",
-    "thumb": "./gallery/img4.jpg"
-  },
-  {
-    "title": "Image 5",
-    "year": 2024,
-    "description": "Description for image 5",
-    "src": "./gallery/img5.jpg",
-    "thumb": "./gallery/img5.jpg"
-  }
+    {
+        "title": "Image 1",
+        "year": 2024,
+        "desc": "Description for image 1",
+        "src": "./gallery/img1.jpg",
+        "thumb": "./gallery/img1.jpg"
+    },
+    {
+        "title": "Image 2",
+        "year": 2024,
+        "desc": "Description for image 2",
+        "src": "./gallery/img2.jpg",
+        "thumb": "./gallery/img2.jpg"
+    },
+    {
+        "title": "Image 3",
+        "year": 2024,
+        "desc": "Description for image 3",
+        "src": "./gallery/img3.jpg",
+        "thumb": "./gallery/img3.jpg"
+    },
+    {
+        "title": "Image 4",
+        "year": 2024,
+        "desc": "Description for image 4",
+        "src": "./gallery/img4.jpg",
+        "thumb": "./gallery/img4.jpg"
+    },
+    {
+        "title": "Image 5",
+        "year": 2024,
+        "desc": "Description for image 5",
+        "src": "./gallery/img5.jpg",
+        "thumb": "./gallery/img5.jpg"
+    }
 ]
