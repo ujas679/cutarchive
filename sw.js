@@ -36,4 +36,10 @@ self.addEventListener('fetch', (e) => {
             // offline fallback for photos.json
             if (url.pathname.endsWith('/gallery/photos.json')) {
                 return new Response('[]', {
-                    he
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            return new Response('', { status: 504 });
+        }
+    })());
+});
