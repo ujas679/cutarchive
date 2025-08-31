@@ -1,10 +1,8 @@
-// Tiny cache-first SW for gallery images
-const CACHE_NAME = 'ca-gallery-v1';
+// sw.js (root ma mukho)
+const CACHE_NAME = 'cut-archive-gallery-v1';
 const IMG_EXT = /\.(avif|webp|jpg|jpeg|png)$/i;
 
-self.addEventListener('install', (e) => {
-    self.skipWaiting();
-});
+self.addEventListener('install', (e) => self.skipWaiting());
 
 self.addEventListener('activate', (e) => {
     e.waitUntil(
@@ -19,9 +17,11 @@ self.addEventListener('fetch', (e) => {
     const { request } = e;
     const url = new URL(request.url);
 
-    // Only handle GET image requests (gallery thumbs or full-res)
+    // only GET requests
     if (request.method !== 'GET') return;
-    if (!IMG_EXT.test(url.pathname)) return;
+
+    // only images + photos.json
+    if (!IMG_EXT.test(url.pathname) && !url.pathname.endsWith('/gallery/photos.json')) return;
 
     e.respondWith((async () => {
         const cache = await caches.open(CACHE_NAME);
@@ -30,12 +30,10 @@ self.addEventListener('fetch', (e) => {
 
         try {
             const res = await fetch(request, { cache: 'no-store' });
-            // clone & store if OK
             if (res.ok) cache.put(request, res.clone());
             return res;
         } catch (err) {
-            // offline fallback: show nothing (or you could return a tiny placeholder)
-            return new Response('', { status: 504 });
-        }
-    })());
-});
+            // offline fallback for photos.json
+            if (url.pathname.endsWith('/gallery/photos.json')) {
+                return new Response('[]', {
+                    he
