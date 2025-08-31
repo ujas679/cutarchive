@@ -1,0 +1,20 @@
+[
+    {
+        "src": "./gallery/img1.jpg",
+        "title": "Image 1",
+        "year": "2023",
+        "description": "Short description about Image 1"
+    },
+    {
+        "src": "./gallery/img2.jpg",
+        "title": "Image 2",
+        "year": "2023",
+        "description": "Short description about Image 2"
+    },
+    {
+        "src": "./gallery/img3.jpg",
+        "title": "Image 3",
+        "year": "2022",
+        "description": "Short description about Image 3"
+    }
+]
