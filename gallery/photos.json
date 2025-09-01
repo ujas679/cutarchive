@@ -3,8 +3,8 @@
         "title": "Image 1",
         "year": 2024,
         "desc": "Description for image 1",
-        "src": "img1.jpg",
-        "thumb": "img1.jpg"
+        "src": "img1.jpeg",
+        "thumb": "img1.jpeg"
     },
     {
         "title": "Image 2",
@@ -33,5 +33,34 @@
         "desc": "Description for image 5",
         "src": "img5.jpg",
         "thumb": "img5.jpg"
+    },
+    {
+        "title": "Image 6",
+        "year": 2024,
+        "desc": "Description for image 6",
+        "src": "img6.jpg",
+        "thumb": "img6.jpg"
+    },
+    {
+        "title": "Image 7",
+        "year": 2024,
+        "desc": "Description for image 7",
+        "src": "img7.jpg",
+        "thumb": "img7.jpg"
+    },
+    {
+        "title": "Image 8",
+        "year": 2024,
+        "desc": "Description for image 8",
+        "src": "img8.jpg",
+        "thumb": "img8.jpg"
+    },
+    {
+        "title": "Image 9",
+        "year": 2024,
+        "desc": "Description for image 9",
+        "src": "img9.jpg",
+        "thumb": "img9.jpg"
     }
 ]
+
