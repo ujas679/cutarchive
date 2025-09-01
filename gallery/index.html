@@ -247,20 +247,6 @@
             margin-bottom: 10px;
         }
 
-        .stage {
-            position: relative;
-            border-radius: 12px;
-            max-width: 95vw;
-            max-height: 70vh;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 1px solid var(--ring);
-            aspect-ratio: var(--stage-ar, 4 / 3);
-        }
-
         .stage img {
             display: block;
             max-width: 100%;
@@ -470,9 +456,6 @@
         function openLB(i) {
             current = i;
             const it = items[i];
-            // aspect placeholder
-            const ar = it.aspect && isFinite(it.aspect) ? String(it.aspect) : '4 / 3';
-            stage.style.setProperty('--stage-ar', ar);
 
             lbImg.style.opacity = 0;
             lbImg.src = it.thumb || it.src;
@@ -514,5 +497,4 @@
 
     </script>
 </body>
-
 </html>
