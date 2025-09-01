@@ -1,4 +1,4 @@
-    <!doctype html>
+<!doctype html>
 <html lang="en">
 
 <head>
@@ -287,19 +287,11 @@
             pointer-events: none;
         }
 
-        .lb-nav .arrow {
-              font-size: 40px;
-              color: white;
-              background: rgba(0,0,0,0.5);
-              border: none;
-              padding: 8px 14px;
-              border-radius: 50%;
-              cursor: pointer;
-              transition: background 0.3s;
-        }
-
-        .lb-nav .arrow:hover {
-              background: rgba(0,0,0,0.8);
+        lb-nav .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: auto;
         }
 
 
