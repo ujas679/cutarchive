@@ -503,24 +503,37 @@
             else if (e.key === 'Escape') closeLB();
         });
 
-        // Swipe
-        const SWIPE_X_THRESHOLD = 110;
-        const SWIPE_Y_TOLERANCE = 70;
-        let t = { down: false, moved: false, x: 0, y: 0 };
-        lb.addEventListener('touchstart', (e) => {
-            if (!lb.classList.contains('open')) return;
-            if (e.touches.length > 1) { t.down = false; return; }
-            t.down = true; t.moved = false;
-            const c = e.touches[0]; t.x = c.clientX; t.y = c.clientY;
-        }, { passive: true });
-        lb.addEventListener('touchmove', (e) => { if (t.down) t.moved = true; }, { passive: true });
-        lb.addEventListener('touchend', (e) => {
-            if (!lb.classList.contains('open') || !t.down) return;
-            t.down = false; if (!t.moved) return;
-            const c = e.changedTouches[0];
-            const dx = c.clientX - t.x; const dy = c.clientY - t.y;
-            if (Math.abs(dy) <= SWIPE_Y_TOLERANCE && Math.abs(dx) >= SWIPE_X_THRESHOLD) (dx < 0) ? showNext() : showPrev();
-        }, { passive: true });
+        // --- Swipe support for Lightbox ---
+const SWIPE_X_THRESHOLD = 110;
+const SWIPE_Y_TOLERANCE = 70;
+let t = { down: false, moved: false, x: 0, y: 0 };
+
+lb.addEventListener('touchstart', (e) => {
+  if (!lb.classList.contains('open')) return;
+  if (e.touches.length > 1) { t.down = false; return; }
+  t.down = true;
+  t.moved = false;
+  const c = e.touches[0];
+  t.x = c.clientX;
+  t.y = c.clientY;
+}, { passive: true });
+
+lb.addEventListener('touchmove', (e) => {
+  if (t.down) t.moved = true;
+}, { passive: true });
+
+lb.addEventListener('touchend', (e) => {
+  if (!lb.classList.contains('open') || !t.down) return;
+  t.down = false;
+  if (!t.moved) return;
+  const c = e.changedTouches[0];
+  const dx = c.clientX - t.x;
+  const dy = c.clientY - t.y;
+  if (Math.abs(dy) <= SWIPE_Y_TOLERANCE && Math.abs(dx) >= SWIPE_X_THRESHOLD) {
+    (dx < 0) ? next() : prev();  // use existing next()/prev() funcs
+  }
+}, { passive: true });
+
 
         loadJSON();
 
@@ -535,4 +548,5 @@
 
 
 </html>
+
 
