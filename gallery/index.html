@@ -452,10 +452,8 @@
                 const meta = document.createElement('div');
                 meta.className = 'meta';
                 meta.innerHTML = `
-          <h3>${it.title || ''}</h3>
-          <p>${it.year || ''}</p>
-          <p class="desc">${it.description || ''}</p>
-        `;
+                    <p class="desc">${it.description || ''}</p>
+                `;
                 card.appendChild(img);
                 card.appendChild(meta);
                 frag.appendChild(card);
@@ -475,8 +473,6 @@
             lbImg.style.opacity = 0;
             lbImg.src = it.thumb || it.src;
             lbImg.alt = it.title || '';
-            lbTitle.textContent = it.title || '';
-            lbYear.textContent = it.year ? String(it.year) : '';
             lbCaption.textContent = it.description || '';
             lb.classList.add('open');
             setSkel(true);
