@@ -361,6 +361,8 @@
                 <div class="lb-controls">
                     <button id="lbClose" class="btn-glass" aria-label="Close">✕</button>
                 </div>
+                <div id="lbTitle"></div>
+                <div id="lbYear"></div>
                 <div class="stage" id="stage">
                     <div id="skel" class="loading-skel" aria-hidden="true">Loading…</div>
                     <img id="lbImg" src="" alt="" />
@@ -476,8 +478,6 @@
             lbImg.style.opacity = 0;
             lbImg.src = it.thumb || it.src;
             lbImg.alt = it.title || '';
-            lbTitle.textContent = it.title || '';
-            lbYear.textContent = it.year ? String(it.year) : '';
             lbCaption.textContent = it.description || '';
             lb.classList.add('open');
             setSkel(true);
