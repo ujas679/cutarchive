@@ -247,11 +247,26 @@
             margin-bottom: 10px;
         }
 
-          /* Lightbox image sizing */
-        .lightbox .stage img {
-            max-width: 90vw;   /* screen width no 90% sudhi */
-            max-height: 90vh;  /* screen height no 90% sudhi */
-            object-fit: contain; /* distort na thay */
+        .stage {
+            position: relative;
+            border-radius: 12px;
+            max-width: 95vw;
+            max-height: 70vh;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--ring);
+            aspect-ratio: var(--stage-ar, 4 / 3);
+        }
+
+        .stage img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity .2s ease;
         }
 
         .loading-skel {
@@ -452,13 +467,12 @@
         }
 
         function setSkel(on = true) { skel.style.display = on ? 'flex' : 'none'; }
-        // aspect placeholder
-        const ar = it.aspect && isFinite(it.aspect) ? String(it.aspect) : '4 / 3';
-        stage.style.setProperty('--stage-ar', ar);
-
         function openLB(i) {
             current = i;
             const it = items[i];
+            // aspect placeholder
+            const ar = it.aspect && isFinite(it.aspect) ? String(it.aspect) : '4 / 3';
+            stage.style.setProperty('--stage-ar', ar);
 
             lbImg.style.opacity = 0;
             lbImg.src = it.thumb || it.src;
@@ -500,7 +514,5 @@
 
     </script>
 </body>
+
 </html>
-
-
-
