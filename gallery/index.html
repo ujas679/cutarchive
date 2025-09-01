@@ -247,12 +247,12 @@
             margin-bottom: 10px;
         }
 
-      /* Lightbox image sizing */
-.lightbox .stage img {
-    max-width: 90vw;   /* screen width no 90% sudhi */
-    max-height: 90vh;  /* screen height no 90% sudhi */
-    object-fit: contain; /* distort na thay */
-}
+          /* Lightbox image sizing */
+        .lightbox .stage img {
+            max-width: 90vw;   /* screen width no 90% sudhi */
+            max-height: 90vh;  /* screen height no 90% sudhi */
+            object-fit: contain; /* distort na thay */
+        }
 
         .loading-skel {
             position: absolute;
@@ -452,6 +452,10 @@
         }
 
         function setSkel(on = true) { skel.style.display = on ? 'flex' : 'none'; }
+        // aspect placeholder
+        const ar = it.aspect && isFinite(it.aspect) ? String(it.aspect) : '4 / 3';
+        stage.style.setProperty('--stage-ar', ar);
+
         function openLB(i) {
             current = i;
             const it = items[i];
@@ -497,5 +501,6 @@
     </script>
 </body>
 </html>
+
 
 
