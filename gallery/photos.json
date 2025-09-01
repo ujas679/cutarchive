@@ -14,12 +14,13 @@
     "thumb": "img2.jpg"
   },
   {
-    "title": "Image 3",
-    "year": 2024,
-    "desc": "Description for image 3",
-    "src": "img3.jpg",
-    "thumb": "img3.jpg"
-  },
+  "title": "Image 3",
+  "year": 2024,
+  "desc": "Description for image 3",
+  "src": "img3.jpg",
+  "thumb": "img3.jpg",
+  "aspect": 1.5
+},
   {
     "title": "Image 4",
     "year": 2024,
@@ -35,3 +36,4 @@
     "thumb": "img5.jpg"
   }
 ]
+
