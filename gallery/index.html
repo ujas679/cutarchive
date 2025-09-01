@@ -376,7 +376,7 @@
         </div>
     </main>
 
-    <footer>
+   <footer>
         <div class="footer-inner">
             <div>© <span id="year"></span> Cut Archive</div>
             <div class="social"></div>
@@ -384,16 +384,22 @@
     </footer>
 
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        main {
+            flex: 1;
+        }
+
         footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
             background-color: #0b0f1a;
             color: #bbb;
             font-size: 14px;
             text-align: center;
-            padding: 0px 0;
+            border-top: 1px solid #222;
         }
 
         .footer-inner {
@@ -401,9 +407,9 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
+            padding: 10px 0;
         }
     </style>
-
     <script>
         // year auto update
         document.getElementById("year").textContent = new Date().getFullYear();
@@ -503,37 +509,36 @@
             else if (e.key === 'Escape') closeLB();
         });
 
-        // --- Swipe support for Lightbox ---
-const SWIPE_X_THRESHOLD = 110;
-const SWIPE_Y_TOLERANCE = 70;
-let t = { down: false, moved: false, x: 0, y: 0 };
+       // --- Swipe support for Lightbox ---
+        const SWIPE_X_THRESHOLD = 110;
+        const SWIPE_Y_TOLERANCE = 70;
+        let t = { down: false, moved: false, x: 0, y: 0 };
 
-lb.addEventListener('touchstart', (e) => {
-  if (!lb.classList.contains('open')) return;
-  if (e.touches.length > 1) { t.down = false; return; }
-  t.down = true;
-  t.moved = false;
-  const c = e.touches[0];
-  t.x = c.clientX;
-  t.y = c.clientY;
-}, { passive: true });
+        lb.addEventListener('touchstart', (e) => {
+            if (!lb.classList.contains('open')) return;
+            if (e.touches.length > 1) { t.down = false; return; }
+            t.down = true;
+            t.moved = false;
+            const c = e.touches[0];
+            t.x = c.clientX;
+            t.y = c.clientY;
+        }, { passive: true });
 
-lb.addEventListener('touchmove', (e) => {
-  if (t.down) t.moved = true;
-}, { passive: true });
+        lb.addEventListener('touchmove', (e) => {
+            if (t.down) t.moved = true;
+        }, { passive: true });
 
-lb.addEventListener('touchend', (e) => {
-  if (!lb.classList.contains('open') || !t.down) return;
-  t.down = false;
-  if (!t.moved) return;
-  const c = e.changedTouches[0];
-  const dx = c.clientX - t.x;
-  const dy = c.clientY - t.y;
-  if (Math.abs(dy) <= SWIPE_Y_TOLERANCE && Math.abs(dx) >= SWIPE_X_THRESHOLD) {
-    (dx < 0) ? next() : prev();  // use existing next()/prev() funcs
-  }
-}, { passive: true });
-
+        lb.addEventListener('touchend', (e) => {
+            if (!lb.classList.contains('open') || !t.down) return;
+            t.down = false;
+            if (!t.moved) return;
+            const c = e.changedTouches[0];
+            const dx = c.clientX - t.x;
+            const dy = c.clientY - t.y;
+            if (Math.abs(dy) <= SWIPE_Y_TOLERANCE && Math.abs(dx) >= SWIPE_X_THRESHOLD) {
+                (dx < 0) ? next() : prev();  // use existing next()/prev() funcs
+            }
+        }, { passive: true });
 
         loadJSON();
 
@@ -548,5 +553,6 @@ lb.addEventListener('touchend', (e) => {
 
 
 </html>
+
 
 
