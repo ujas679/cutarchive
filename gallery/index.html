@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Gallery — Cut Archive</title>
     <link rel="icon" href="./gallery/favicon.png" />
-    <meta name="description" content="Browse the premium nature & landscape photography of Cut Archive." />
+    <meta name="description" content="Browse the premium photography of Cut Archive." />
     <style>
         :root {
             --bg: #070b15;
@@ -339,7 +339,7 @@
                 <div class="logo" aria-label="Cut Archive Logo">CA</div>
                 <div>
                     <h1 style="margin:0">Cut Archive</h1>
-                    <p>Nature & Landscape</p>
+                    <p>Photographer</p>
                 </div>
             </div>
             <nav>
@@ -437,7 +437,7 @@
 
         async function loadJSON() {
             try {
-                const res = await fetch('./photos.json', { cache: 'no-cache' });
+                const res = await fetch('photos.json', { cache: 'no-cache' });
                 items = await res.json();
                 renderGrid();
             } catch (e) {
@@ -553,5 +553,6 @@
 
 
 </html>
+
 
 
