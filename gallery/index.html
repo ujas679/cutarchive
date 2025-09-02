@@ -445,14 +445,14 @@
         async function loadJSON() {
             try {
                 const res = await fetch('/gallery/photos.json', { cache: 'no-cache' });
-                items = await res.json();
+                const json = await res.json();
+                items = applyPinOrder(json);   // 👈 already correct
                 renderGrid();
             } catch (e) {
                 console.error(e);
                 grid.innerHTML = '<div style="color:#a7b0b8">Gallery not available.</div>';
             }
         }
-
         function renderGrid() {
             const frag = document.createDocumentFragment();
             items.forEach((it, i) => {
@@ -560,6 +560,7 @@
 
 
 </html>
+
 
 
 
