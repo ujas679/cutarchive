@@ -435,16 +435,12 @@
         let items = [];
         let current = -1;
 
-         function applyPinOrder(list) {
-            const pinned = [];
-            const rest = [];
-            for (const it of list) {
-                if (it.pin) pinned.push(it);
-                else rest.push(it);
-            }
-            pinned.sort((a, b) => (a.pin - b.pin)); // order: 1,2,3...
-            return [...pinned, ...rest];
+         function applyPinOrder(items) {
+            const pinned = items.filter(it => it.pin === true);
+            const others = items.filter(it => !it.pin);
+            return [...pinned, ...others];
         }
+
         
         async function loadJSON() {
             try {
@@ -564,6 +560,7 @@
 
 
 </html>
+
 
 
 
