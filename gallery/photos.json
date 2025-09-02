@@ -26,6 +26,7 @@
         "desc": "Description for image 4",
         "src": "img4.jpg",
         "thumb": "img4.jpg"
+        "pinned": 1
     },
     {
         "title": "Image 5",
@@ -63,4 +64,5 @@
         "thumb": "img9.jpg"
     }
 ]
+
 
