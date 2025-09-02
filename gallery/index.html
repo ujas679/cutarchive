@@ -434,13 +434,6 @@
 
         let items = [];
         let current = -1;
-
-         function applyPinOrder(items) {
-            const pinned = items.filter(it => it.pin === true);
-            const others = items.filter(it => !it.pin);
-            return [...pinned, ...others];
-        }
-
         
         async function loadJSON() {
             try {
@@ -453,6 +446,15 @@
                 grid.innerHTML = '<div style="color:#a7b0b8">Gallery not available.</div>';
             }
         }
+        
+        // 👇 pin karva mate function
+         function applyPinOrder(arr) {
+            const pinned = arr.filter(it => it.pin === true);
+            const others = arr.filter(it => !it.pin);
+            return [...pinned, ...normal];
+        }
+
+        
         function renderGrid() {
             const frag = document.createDocumentFragment();
             items.forEach((it, i) => {
@@ -470,7 +472,7 @@
                 meta.innerHTML = `
           <h3>${it.title || ''}</h3>
           <p>${it.year || ''}</p>
-          <p class="desc">${it.description || ''}</p>
+          p class="desc">${it.desc || ''}</p>
         `;
                 card.appendChild(img);
                 card.appendChild(meta);
@@ -560,6 +562,7 @@
 
 
 </html>
+
 
 
 
