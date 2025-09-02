@@ -25,7 +25,7 @@
         "year": 2024,
         "desc": "Description for image 4",
         "src": "img4.jpg",
-        "thumb": "img4.jpg"
+        "thumb": "img4.jpg",
         "pin": true
     },
     {
@@ -64,6 +64,7 @@
         "thumb": "img9.jpg"
     }
 ]
+
 
 
 
