@@ -437,7 +437,7 @@
 
         async function loadJSON() {
             try {
-                const res = await fetch('./gallery/photos.json', { cache: 'no-cache' });
+                const res = await fetch('./photos.json', { cache: 'no-cache' });
                 items = await res.json();
                 renderGrid();
             } catch (e) {
@@ -553,4 +553,5 @@
 
 
 </html>
+
 
