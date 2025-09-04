@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin — Cut Archive Gallery (Supabase)</title>
+    <style>
+        :root {
+            --bg: #0b1020;
+            --card: #0f1720;
+            --accent: #f59e0b;
+            --muted: #a7b0b8;
+            --ring: rgba(255, 255, 255, .16);
+            --glass: rgba(255, 255, 255, .06);
+            --ok: #22c55e;
+            --warn: #eab308;
+            --err: #ef4444;
+            --info: #38bdf8;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, #0a0f1e, #0e1530);
+            color: #fff;
+            font-family: Inter, system-ui, Arial
+        }
+
+        .wrap {
+            max-width: 1000px;
+            margin: 24px auto;
+            padding: 16px
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 16px
+        }
+
+        h2 {
+            font-size: 18px;
+            margin: 0 0 12px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--ring);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .35);
+            margin-bottom: 16px
+        }
+
+        label {
+            font-size: 13px;
+            color: #dfe6ef;
+            display: block;
+            margin-bottom: 4px
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--ring);
+            background: #0b1222;
+            color: #fff;
+            font-size: 13px
+        }
+
+        textarea {
+            min-height: 60px;
+            resize: vertical
+        }
+
+        .drop {
+            border: 1px dashed var(--ring);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            background: #0b1222;
+            color: #cbd5e1
+        }
+
+        .drop.drag {
+            border-color: #3b82f6;
+            background: #0b1630
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 16px;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            background: var(--glass);
+            border: 1px solid var(--ring);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            backdrop-filter: blur(8px) saturate(120%);
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+            font-size: 13px
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #1f2937, #334155);
+            border-color: #3b82f6
+        }
+
+        .btn.danger {
+            border-color: var(--err)
+        }
+
+        .btn.info {
+            border-color: var(--info)
+        }
+
+        .btn:disabled {
+            opacity: .6;
+            cursor: not-allowed
+        }
+
+        .stat {
+            font-size: 13px;
+            color: #cbd5e1
+        }
+
+        .hr {
+            height: 1px;
+            background: var(--ring);
+            margin: 16px 0
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        /* Upload list */
+        .preview {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px
+        }
+
+        .item {
+            background: #0b1222;
+            border: 1px solid var(--ring);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column
+        }
+
+        .thumb {
+            display: flex;
+            gap: 12px;
+            padding: 12px
+        }
+
+        .thumb img {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #000
+        }
+
+        .fields {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 100px;
+            gap: 8px
+        }
+
+        .fields textarea {
+            grid-column: 1/3
+        }
+
+        .prog {
+            height: 4px;
+            background: #111;
+            margin: 0 12px 12px;
+            border-radius: 4px;
+            overflow: hidden
+        }
+
+        .bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #3b82f6, #22c55e)
+        }
+
+        .badge {
+            font-size: 11px;
+            margin-left: auto;
+            margin-right: 12px;
+            color: #ccc
+        }
+
+        .ok {
+            color: var(--ok)
+        }
+
+        .err {
+            color: var(--err)
+        }
+
+        /* Manage list */
+        .manage {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 12px
+        }
+
+        .card-mini {
+            background: #0b1222;
+            border: 1px solid var(--ring);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .card-mini img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #000
+        }
+
+        .meta {
+            font-size: 12px;
+            color: #cbd5e1
+        }
+
+        .meta b {
+            font-size: 13px;
+            color: #fff;
+            display: block;
+            margin-bottom: 2px
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .search {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .search input {
+            max-width: 260px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Admin — Upload to Gallery (Login + Multi + Per-image + Delete)</h1>
+
+        <!-- Login Card -->
+        <div id="loginCard" class="card">
+            <h2>Sign in</h2>
+            <label>Email <input id="email" type="email" autocomplete="username"></label>
+            <label>Password <input id="password" type="password" autocomplete="current-password"></label>
+            <div class="actions">
+                <button id="loginBtn" class="btn primary">Sign in</button>
+                <span id="loginMsg" class="stat"></span>
+            </div>
+        </div>
+
+        <!-- Upload Card -->
+        <div id="uploadCard" class="card hidden">
+            <div class="actions" style="margin-bottom:10px">
+                <span class="stat">Signed in as <strong id="whoami">—</strong></span>
+                <button id="logoutBtn" class="btn danger">Sign out</button>
+            </div>
+
+            <h2>Upload photos</h2>
+            <label>Select images (drag & drop or pick multiple)</label>
+            <div id="drop" class="drop">
+                <input id="file" type="file" accept="image/*" multiple>
+                <div class="stat" id="stat">No files selected.</div>
+            </div>
+            <div class="preview" id="preview"></div>
+
+            <div class="hr"></div>
+            <div class="actions">
+                <label>Max dimension (px) <input id="maxDim" type="text" value="2560"></label>
+                <label>Thumb dimension (px) <input id="thumbDim" type="text" value="1200"></label>
+                <label>Quality (0–1) <input id="quality" type="text" value="0.82"></label>
+                <span class="stat">Tip: 0.82 is a sweet spot for WebP.</span>
+            </div>
+
+            <div class="actions">
+                <button id="uploadBtn" class="btn primary">Upload ALL</button>
+                <span id="progress" class="stat"></span>
+            </div>
+        </div>
+
+        <!-- Manage Card: list & delete -->
+        <div id="manageCard" class="card hidden">
+            <div class="row">
+                <h2>Your uploads</h2>
+                <div class="search">
+                    <input id="search" type="text" placeholder="Search title/year…">
+                    <button id="refreshBtn" class="btn info">Refresh</button>
+                </div>
+            </div>
+            <div id="manageList" class="manage"></div>
+            <div id="manageMsg" class="stat"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        /* ===== Supabase ===== */
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";          // <-- replace
+        const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";                  // <-- replace
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const BUCKET = "gallery"; // Supabase Storage bucket name
+
+        /* ===== DOM ===== */
+        const $ = id => document.getElementById(id);
+        const loginCard = $('loginCard'), uploadCard = $('uploadCard'), manageCard = $('manageCard');
+        const loginBtn = $('loginBtn'), logoutBtn = $('logoutBtn'), loginMsg = $('loginMsg'), whoami = $('whoami');
+
+        const fileInput = $('file'), drop = $('drop'), stat = $('stat'), preview = $('preview'), progress = $('progress');
+        const uploadBtn = $('uploadBtn'), maxDim = $('maxDim'), thumbDim = $('thumbDim'), quality = $('quality');
+
+        const manageList = $('manageList'), manageMsg = $('manageMsg'), refreshBtn = $('refreshBtn'), search = $('search');
+
+        /* ===== Auth gating ===== */
+        function setAuthedUI(user) {
+            const authed = !!user;
+            loginCard.classList.toggle('hidden', authed);
+            uploadCard.classList.toggle('hidden', !authed);
+            manageCard.classList.toggle('hidden', !authed);
+            whoami.textContent = authed ? (user.email || user.id) : '—';
+            if (authed) refreshList();
+        }
+        supabase.auth.getUser().then(({ data }) => setAuthedUI(data?.user || null));
+        supabase.auth.onAuthStateChange((_evt, session) => setAuthedUI(session?.user || null));
+
+        loginBtn.onclick = async () => {
+            loginMsg.textContent = 'Signing in…';
+            const email = $('email').value.trim();
+            const pass = $('password').value;
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+            loginMsg.textContent = error ? ('Error: ' + error.message) : 'Signed in ✅';
+        };
+        logoutBtn.onclick = async () => { await supabase.auth.signOut(); };
+
+        /* ===== File selection (multiple) + drag & drop with per-image fields ===== */
+        let files = [];
+        function renderList() {
+            preview.innerHTML = '';
+            if (!files.length) { stat.textContent = 'No files selected.'; return; }
+            stat.textContent = `${files.length} file(s) ready.`;
+            files.forEach((f, idx) => {
+                const item = document.createElement('div'); item.className = 'item'; item.dataset.index = idx;
+                const thumb = document.createElement('div'); thumb.className = 'thumb';
+                const img = document.createElement('img'); img.src = URL.createObjectURL(f); img.onload = () => URL.revokeObjectURL(img.src);
+                thumb.appendChild(img);
+                const badge = document.createElement('div'); badge.className = 'badge'; badge.textContent = 'queued';
+                thumb.appendChild(badge);
+
+                const fields = document.createElement('div'); fields.className = 'fields';
+                const t = document.createElement('input'); t.placeholder = 'Title'; t.value = f.name.replace(/\.[^.]+$/, '');
+                const y = document.createElement('input'); y.placeholder = 'Year';
+                const d = document.createElement('textarea'); d.placeholder = 'Description';
+                fields.appendChild(t); fields.appendChild(y); fields.appendChild(d);
+
+                const prog = document.createElement('div'); prog.className = 'prog';
+                const bar = document.createElement('div'); bar.className = 'bar'; prog.appendChild(bar);
+
+                item.appendChild(thumb); item.appendChild(fields); item.appendChild(prog);
+                f._title = t; f._year = y; f._desc = d; f._badge = badge; f._bar = bar;
+                preview.appendChild(item);
+            });
+        }
+        fileInput.onchange = () => { files = Array.from(fileInput.files || []); renderList(); };
+        ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('drag'); }));
+        ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('drag'); }));
+        drop.addEventListener('drop', e => { const d = Array.from(e.dataTransfer.files || []).filter(f => /^image\//.test(f.type)); files = files.concat(d); renderList(); });
+
+        /* ===== Compression helpers ===== */
+        const slug = s => (s || 'photo').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        async function blobFromCanvas(c, m = 'image/webp', q = 0.82) { return new Promise(res => c.toBlob(b => res(b), m, q)); }
+        function targetSize(w, h, max) { if (w <= max && h <= max) return { w, h }; const r = w / h; return (w > h) ? { w: max, h: Math.round(max / r) } : { w: Math.round(max * r), h: max }; }
+        async function drawToCanvas(img, max) { const { width: W, height: H } = img; const { w, h } = targetSize(W, H, max); const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(img, 0, 0, w, h); return c; }
+        async function loadImageBitmap(file) { if ('createImageBitmap' in window) { try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch { } } const url = URL.createObjectURL(file); const i = new Image(); await new Promise((res, rej) => { i.onload = res; i.onerror = rej; i.src = url; }); const c = document.createElement('canvas'); c.width = i.naturalWidth; i.crossOrigin = "anonymous"; c.height = i.naturalHeight; c.getContext('2d').drawImage(i, 0, 0); URL.revokeObjectURL(url); return await createImageBitmap(c); }
+        async function compress(f, { max = 2560, q = 0.82 } = {}) { const b = await loadImageBitmap(f); const c = await drawToCanvas(b, max); const out = await blobFromCanvas(c, 'image/webp', q); return { blob: out, width: c.width, height: c.height }; }
+        async function makeThumb(f, { max = 1200, q = 0.82 } = {}) { const b = await loadImageBitmap(f); const c = await drawToCanvas(b, max); const out = await blobFromCanvas(c, 'image/webp', q); return { blob: out }; }
+
+        /* ===== Supabase Storage helpers ===== */
+        async function uploadBlob(path, blob) {
+            const { error } = await supabase.storage
+                .from(BUCKET)
+                .upload(path, blob, {
+                    cacheControl: "31536000",
+                    upsert: false,
+                    contentType: blob.type || 'image/webp'
+                });
+            if (error) throw error;
+            const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(path);
+            return { publicUrl, path };
+        }
+
+        /* ===== Upload queue ===== */
+        uploadBtn.onclick = async () => {
+            const { data: session } = await supabase.auth.getUser();
+            if (!session?.user) { alert('Please sign in first'); return; }
+            if (!files.length) { alert('No files selected'); return; }
+
+            uploadBtn.disabled = true;
+            const Q = parseFloat(quality.value) || 0.82, MAX = parseInt(maxDim.value) || 2560, TH = parseInt(thumbDim.value) || 1200;
+            let done = 0;
+
+            for (const [idx, f] of files.entries()) {
+                try {
+                    f._badge.textContent = 'compressing';
+                    const { blob: main, width, height } = await compress(f, { max: MAX, q: Q });
+                    const { blob: thumb400 } = await makeThumb(f, { max: 400, q: Math.min(Q, 0.8) });
+                    const { blob: thumb800 } = await makeThumb(f, { max: Math.max(TH, 800), q: Math.min(Q, 0.8) });
+
+                    f._badge.textContent = 'uploading'; f._bar.style.width = '35%';
+                    const base = `${Date.now()}-${slug(f._title.value || f.name)}-${idx + 1}`;
+                    const mainKey = `gallery/${base}.webp`.replace(/^gallery\//, '');   // storage key inside bucket
+                    const t400Key = `gallery/thumbs/${base}-400.webp`.replace(/^gallery\//, '');
+                    const t800Key = `gallery/thumbs/${base}-800.webp`.replace(/^gallery\//, '');
+
+                    const mainUp = await uploadBlob(mainKey, main);
+                    f._bar.style.width = '55%';
+                    const t400Up = await uploadBlob(t400Key, thumb400);
+                    f._bar.style.width = '75%';
+                    const t800Up = await uploadBlob(t800Key, thumb800);
+                    f._bar.style.width = '90%';
+
+                    const { error: dbErr } = await supabase.from('gallery').insert([{
+                        title: f._title.value || null,
+                        year: f._year.value || null,
+                        description: f._desc.value || null,
+                        src: mainUp.publicUrl,
+                        thumb400: t400Up.publicUrl,
+                        thumb800: t800Up.publicUrl,
+                        // keep backward compatibility
+                        thumb: t800Up.publicUrl,
+                        width, height,
+                        aspect: +(width / height).toFixed(4),
+                        uploaded_at: new Date().toISOString(),
+                        uid: session.user.id,
+                        // storage keys so we can delete properly
+                        path_main: mainUp.path,
+                        path_t400: t400Up.path,
+                        path_t800: t800Up.path
+                    }]);
+                    if (dbErr) throw dbErr;
+
+                    f._bar.style.width = '100%'; f._badge.innerHTML = '<span class="ok">done</span>';
+                } catch (e) {
+                    console.error(e);
+                    f._badge.innerHTML = '<span class="err">failed</span>';
+                }
+                done++; progress.textContent = `${done}/${files.length} processed`;
+            }
+            uploadBtn.disabled = false;
+            refreshList();
+        };
+
+        /* ===== Manage list (read + delete) ===== */
+        let allDocs = []; // cached for search/filter
+
+        async function refreshList() {
+            const { data: session } = await supabase.auth.getUser();
+            if (!session?.user) return;
+            manageMsg.textContent = 'Loading…';
+            manageList.innerHTML = '';
+
+            try {
+                const { data, error } = await supabase
+                    .from('gallery')
+                    .select('*')
+                    .order('uploaded_at', { ascending: false });
+                if (error) throw error;
+
+                allDocs = data || [];
+                renderManage(allDocs);
+                manageMsg.textContent = allDocs.length ? '' : 'No uploads yet.';
+            } catch (e) {
+                console.error(e);
+                manageMsg.textContent = 'Failed to load list.';
+            }
+        }
+
+        function renderManage(list) {
+            manageList.innerHTML = '';
+            const q = (search.value || '').toLowerCase().trim();
+            const filtered = q ? list.filter(x =>
+                (x.title || '').toLowerCase().includes(q) ||
+                String(x.year || '').toLowerCase().includes(q) ||
+                (x.description || '').toLowerCase().includes(q)
+            ) : list;
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card-mini';
+                const img = document.createElement('img');
+                img.src = item.thumb || item.thumb800 || item.src;
+                img.alt = item.title || '';
+                const meta = document.createElement('div');
+                meta.className = 'meta';
+                meta.innerHTML = `
+      <b>${item.title || 'Untitled'}</b>
+      <div>${item.year ? `Year: ${item.year}` : ''}</div>
+      <div style="margin-top:4px;opacity:.9">${item.description || ''}</div>
+    `;
+                const row = document.createElement('div');
+                row.className = 'row';
+                const small = document.createElement('span');
+                small.className = 'stat';
+                small.textContent = item.uploaded_at ? new Date(item.uploaded_at).toLocaleString() : '';
+                const del = document.createElement('button');
+                del.className = 'btn danger'; del.textContent = 'Delete';
+                del.onclick = () => handleDelete(item, del, card);
+                row.appendChild(small); row.appendChild(del);
+
+                card.appendChild(img); card.appendChild(meta); card.appendChild(row);
+                manageList.appendChild(card);
+            });
+        }
+
+        async function handleDelete(item, btn, card) {
+            const { data: session } = await supabase.auth.getUser();
+            if (!session?.user) { alert('Please sign in first'); return; }
+            const ok = confirm(`Delete "${item.title || 'this photo'}"? This will remove the file(s) and database entry.`);
+            if (!ok) return;
+
+            btn.disabled = true; btn.textContent = 'Deleting…';
+            try {
+                // Delete Storage variants — ignore errors if path missing
+                const toRemove = [];
+                if (item.path_main) toRemove.push(item.path_main);
+                if (item.path_t400) toRemove.push(item.path_t400);
+                if (item.path_t800) toRemove.push(item.path_t800);
+                if (toRemove.length) {
+                    const { error: remErr } = await supabase.storage.from(BUCKET).remove(toRemove);
+                    if (remErr) console.warn('Storage remove warning:', remErr.message);
+                }
+
+                const { error: dbErr } = await supabase.from('gallery').delete().eq('id', item.id);
+                if (dbErr) throw dbErr;
+
+                card.remove();
+                allDocs = allDocs.filter(d => d.id !== item.id);
+                manageMsg.textContent = '';
+            } catch (e) {
+                console.error(e);
+                alert('Failed to delete: ' + (e.message || e));
+                btn.disabled = false; btn.textContent = 'Delete';
+            }
+        }
+
+        refreshBtn.onclick = refreshList;
+        search.oninput = () => renderManage(allDocs);
+    </script>
+</body>
+
+</html>
