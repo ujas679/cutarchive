@@ -118,6 +118,23 @@
             background: var(--accent);
         }
 
+        .menu-btn {
+            display: none;
+            font-size: 28px;
+            cursor: pointer;
+            user-select: none;
+            color: var(--white);
+            background: transparent;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+
+        .menu-btn:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
         h2 {
             margin: 12px 0 16px;
         }
@@ -338,8 +355,13 @@
                     <p>Photographer</p>
                 </div>
             </div>
-            <nav>
-                <a href="/">Home</a>
+            
+             <button class="menu-btn" id="menuBtn" aria-label="Toggle navigation menu" aria-expanded="false"
+                aria-controls="nav-links">☰</button>
+            
+            <nav id="nav-links" role="navigation">
+                <a href="../">Home</a>
+                <a href="../admin/">Admin</a>
                 <a href="https://www.instagram.com/cut.archive" target="_blank" rel="noopener">Instagram</a>
             </nav>
         </div>
@@ -535,6 +557,22 @@
             }
         }, { passive: true });
 
+         // Mobile menu toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const nav = document.getElementById('nav-links');
+        menuBtn.addEventListener('click', () => {
+            const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+            menuBtn.setAttribute('aria-expanded', String(!expanded));
+            nav.classList.toggle('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (!nav.classList.contains('show')) return;
+            if (!e.target.closest('#nav-links') && !e.target.closest('#menuBtn')) {
+                nav.classList.remove('show');
+                menuBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+
         loadJSON();
 
         if ('serviceWorker' in navigator) {
@@ -548,6 +586,7 @@
 
 
 </html>
+
 
 
 
